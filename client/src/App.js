@@ -1,31 +1,30 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './pages/Home';
-import createBookmark from './pages/createBookmark';
+import CreateBookmark from './pages/createBookmark';
+import EditBookmark from './pages/editBookmark';	
 
 function App() {
 	return (
 		<div className='App'>
 			<Router>
 				<div className='Header'>
-					<link
-						rel='stylesheet'
-						href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css'
-						integrity='sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=='
-						crossorigin='anonymous'
-						referrerpolicy='no-referrer'
-					/>
-					<Link
-						to='/'
-						className='fa-solid fa-bookmark nav-icon'
-					></Link>
-					<Link to='/createBookmark' className='createBookmark-link'>Create a Bookmark</Link>
-					<i className='fa-solid fa-bars nav-icon'></i>
+					<Link to='/'>
+						<span className='material-symbols-outlined'>home</span>
+					</Link>
+					<Link to='/createBookmark'>
+						<span className='material-symbols-outlined'>add_circle</span>
+					</Link>
+					<span className='material-symbols-outlined'>menu</span>
 				</div>
-				<Routes>
-					<Route path='/' exact component={Home} />
-					<Route path='/createBookmark' exact component={createBookmark} />
-				</Routes>
+
+				<div className='Body'>
+					<Routes>
+						<Route path='/' element={<Home />} />
+						<Route path='/createBookmark' element={<CreateBookmark />} />
+						<Route path='/edit/:id' element={<EditBookmark />} />
+					</Routes>
+				</div>
 			</Router>
 		</div>
 	);

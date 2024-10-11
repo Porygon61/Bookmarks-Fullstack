@@ -1,102 +1,120 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 
 function Home() {
 	const [listOfBookmarks, setListOfBookmarks] = useState([]);
+	const [searchTerm, setSearchTerm] = useState('');
+	const [isLoading, setIsLoading] = useState(false); // Loading state for smoother filtering
 
 	useEffect(() => {
+		setIsLoading(true);
 		axios.get('http://localhost:3001/bookmarks').then((response) => {
 			setListOfBookmarks(response.data);
+			setIsLoading(false); // Stop loading when data is fetched
 		});
 	}, []);
+
+	// Simulate a smoother loading effect with a timeout
+	const filteredBookmarks = listOfBookmarks.filter((bookmark) =>
+		bookmark.Title.toLowerCase().includes(searchTerm.toLowerCase())
+	);
+
+	// Handle the loading spinner
+	const handleSearchChange = (e) => {
+		setIsLoading(true);
+		setSearchTerm(e.target.value);
+		setTimeout(() => {
+			setIsLoading(false); // Simulate loading delay
+		}, 500); // Optional delay for UX improvement
+	};
+
 	return (
 		<div className='App'>
-            <h1 className='heading'>Bookmarks Viewer</h1>
 			<main className='Main'>
-                <div className='search'>
-					<form action='' method='get'>
+				<div className='SearchContainer'>
+					<form action='' method='get' onSubmit={(e) => e.preventDefault()}>
 						<input
 							type='search'
 							name='search'
 							placeholder='Search'
 							id='search-input'
+							value={searchTerm} // Controlled input value
+							onChange={handleSearchChange} // Update state on input change
 							alt='Search'
+							autoComplete='off'
 						/>
-						<button
-							class='fa-solid fa-magnifying-glass'
-							type='submit'
-							id='search-submit'
-						></button>
+						<button type='submit' id='search-submit'>
+							<span className='material-symbols-outlined'>search</span>
+						</button>
 					</form>
 				</div>
-				<div id='display'>
-					<div id='table'>
-						<table>
-							<thead>
+				<div className='DisplayContainer'>
+					<table>
+						<thead>
+							<tr>
+								<th>Edit</th>
+								<th>URL</th>
+								<th>Rating</th>
+								<th>Progress</th>
+								<th>Title</th>
+								<th>Website</th>
+								<th>Status</th>
+								<th>Plot</th>
+								<th>Type</th>
+								<th>Notes</th>
+								<th>Last Read</th>
+								<th>Added</th>
+							</tr>
+						</thead>
+						<tbody>
+							{isLoading ? (
 								<tr>
-									<th className='Edit'>Edit</th>
-									<th className='URL'>URL</th>
-									<th className='Rating'>Rating</th>
-									<th className='Progress'>Progress</th>
-									<th className='Title'>Title</th>
-									<th className='Website'>Website</th>
-									<th className='Status'>Status</th>
-									<th className='Plot'>Plot</th>
-									<th className='Type'>Type</th>
-									<th className='Notes'>Notes</th>
-									<th className='LastRead'>Last Read</th>
-									<th className='Added'>Added</th>
+									<td colSpan='12'>
+										<div className='loading-spinner'>Loading bookmarks...</div>
+									</td>
 								</tr>
-							</thead>
-							<tbody id='tbody'>
-								{listOfBookmarks.map((value, key) => {
-									return (
-										<tr id='row'>
-											<td className='Edit' id='column-1'>
-												<button class='fa-solid fa-pen-to-square'></button>
-											</td>
-											<td className='URL' id='column-2'>
-												<a href={value.URL}>
-													<button class='fa-solid fa-share'></button>
-												</a>
-											</td>
-											<td className='Rating' id='column-3'>
-												{value.Rating}
-											</td>
-											<td className='Progress' id='column-4'>
-												{value.Progress}
-											</td>
-											<td className='Title' id='column-5'>
-												{value.Title}
-											</td>
-											<td className='Website' id='column-6'>
-												{value.Website}
-											</td>
-											<td className='Status' id='column-7'>
-												{value.Status}
-											</td>
-											<td className='Plot' id='column-8'>
-												{value.Plot}
-											</td>
-											<td className='Type' id='column-9'>
-												{value.Type}
-											</td>
-											<td className='Notes' id='column-10'>
-												{value.Notes}
-											</td>
-											<td className='LastRead' id='column-11'>
-												{value.LastRead}
-											</td>
-											<td className='Added' id='column-12'>
-												{value.Added}
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
-					</div>
+							) : filteredBookmarks.length === 0 && !isLoading ? (
+								<tr>
+									<td colSpan='12'>No bookmarks found matching your search.</td>
+								</tr>
+							) : (
+								filteredBookmarks.map((bookmark, key) => (
+									<tr key={key}>
+										<td>
+											{/* Navigate to edit page */}
+											<Link to={`/edit/${bookmark.id}`}>
+												<button>
+													<span className='material-symbols-outlined'>
+														edit
+													</span>
+												</button>
+											</Link>
+										</td>
+										<td>
+											<a href={bookmark.URL} rel='noopener noreferrer'>
+												<button>
+													<span className='material-symbols-outlined'>
+														link
+													</span>
+												</button>
+											</a>
+										</td>
+										<td>{bookmark.Rating}</td>
+										<td>{bookmark.Progress}</td>
+										<td>{bookmark.Title}</td>
+										<td>{bookmark.Website}</td>
+										<td>{bookmark.Status}</td>
+										<td>{bookmark.Plot || 'N/A'}</td>
+										<td>{bookmark.Type || 'N/A'}</td>
+										<td>{bookmark.Notes || 'N/A'}</td>
+										<td>{bookmark.LastRead || 'N/A'}</td>
+										<td>{bookmark.Added || 'N/A'}</td>
+									</tr>
+								))
+							)}
+						</tbody>
+					</table>
 				</div>
 			</main>
 		</div>
